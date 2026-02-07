@@ -1774,6 +1774,19 @@ body {
   z-index: 50;
 }
 
+/* Ensure Leaflet popups render above tiles and overlays */
+.nearby-map-leaflet .leaflet-pane {
+  z-index: 400;
+}
+
+.nearby-map-leaflet .leaflet-popup-pane {
+  z-index: 900;
+}
+
+.nearby-map-leaflet .leaflet-popup {
+  z-index: 900;
+}
+
 /* Mobile sidebar behavior */
 @media (max-width: 768px) {
   .hamburger-btn {
@@ -1895,6 +1908,11 @@ body {
   min-height: 0;
   min-width: 0;
   position: relative;
+}
+
+/* Make room for the dealer drawer so map popups aren't covered */
+.fleet-container.drawer-open .fleet-map-wrapper {
+  margin-right: 380px;
 }
 
 .fleet-map-wrapper .nearby-map-leaflet {
@@ -2285,6 +2303,19 @@ body {
   height: 24px;
   background: #fff;
   border: 2px solid #3b82f6;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.3);
+}
+
+.fleet-marker-zero {
+  width: 24px;
+  height: 24px;
+  background: #fff;
+  border: 2px solid #10b981;
   border-radius: 4px;
   display: flex;
   align-items: center;

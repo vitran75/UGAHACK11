@@ -34,6 +34,7 @@ function NearbyContent() {
 
   const dealerships = allLocations.filter((d) => d.type && d.type.includes('dealership'))
   const recyclingCenters = allLocations.filter((d) => d.type && d.type.includes('recycling'))
+  const zeroWasteLocations = allLocations.filter((d) => d.type === 'zero-waste')
   const filteredDealers = filterDealerships(dealerships, { ...filters, search })
 
   const selectedDealer = allLocations.find((d) => d.id === selectedId)
@@ -85,7 +86,7 @@ function NearbyContent() {
   }
 
   return (
-    <div className="fleet-container">
+    <div className={`fleet-container ${drawerOpen ? 'drawer-open' : ''}`}>
       <div className="fleet-panel">
         <div className="fleet-panel-header">
           <h2 className="fleet-panel-title">Fleet Overview</h2>
@@ -129,6 +130,7 @@ function NearbyContent() {
         <NearbyMap
           dealerships={filteredDealers}
           recyclingCenters={recyclingCenters}
+          zeroWasteLocations={zeroWasteLocations}
           selectedId={selectedId}
           onSelectDealership={handleSelect}
         />

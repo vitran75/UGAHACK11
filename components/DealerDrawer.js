@@ -20,22 +20,25 @@ export default function DealerDrawer({
     ? Math.round((dealer.currentBatteryCount / dealer.maxCapacity) * 100)
     : 0
 
-  // Anomaly detection: check if last 3 days growth > 2x fillRate
-  const recentHistory = (batteryHistory || [])
-    .sort((a, b) => new Date(b.date || b.recorded_date) - new Date(a.date || a.recorded_date))
-    .slice(0, 4) // need 4 points to get 3 deltas
-
   let anomaly = false
-  if (recentHistory.length >= 2 && dealer.fillRate > 0) {
-    const newest = recentHistory[0]?.count ?? recentHistory[0]?.battery_count ?? 0
-    const oldest = recentHistory[Math.min(3, recentHistory.length - 1)]?.count ?? recentHistory[Math.min(3, recentHistory.length - 1)]?.battery_count ?? 0
-    const daySpan = Math.min(3, recentHistory.length - 1)
-    const recentRate = (newest - oldest) / daySpan
-    anomaly = recentRate > dealer.fillRate * 2
-  }
+  let confidence = 0; // Default confidence
 
-  // Confidence based on data availability
-  const confidence = batteryHistory && batteryHistory.length >= 7 ? 92 : batteryHistory && batteryHistory.length >= 3 ? 78 : 60
+  if (batteryHistory && batteryHistory.length > 0) {
+    const recentHistory = (batteryHistory || [])
+      .sort((a, b) => new Date(b.date || b.recorded_date) - new Date(a.date || a.recorded_date))
+      .slice(0, 4) // need 4 points to get 3 deltas
+
+    if (recentHistory.length >= 2 && dealer.fillRate > 0) {
+      const newest = recentHistory[0]?.count ?? recentHistory[0]?.battery_count ?? 0
+      const oldest = recentHistory[Math.min(3, recentHistory.length - 1)]?.count ?? recentHistory[Math.min(3, recentHistory.length - 1)]?.battery_count ?? 0
+      const daySpan = Math.min(3, recentHistory.length - 1)
+      const recentRate = (newest - oldest) / daySpan
+      anomaly = recentRate > dealer.fillRate * 2
+    }
+
+    // Confidence based on data availability
+    confidence = batteryHistory.length >= 7 ? 92 : batteryHistory.length >= 3 ? 78 : 60
+  }
 
   // Map history for sparkline
   const sparkData = (batteryHistory || []).map((h) => ({
