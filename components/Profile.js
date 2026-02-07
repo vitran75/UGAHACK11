@@ -10,11 +10,16 @@ export default function Profile() {
   const [email, setEmail] = useState(user?.email || '')
   const [message, setMessage] = useState('')
 
-  const handleSave = () => {
-    updateProfile({ name, email })
-    setIsEditing(false)
-    setMessage('Profile updated successfully!')
-    setTimeout(() => setMessage(''), 3000)
+  const handleSave = async () => {
+    try {
+      await updateProfile({ name, email })
+      setIsEditing(false)
+      setMessage('Profile updated successfully!')
+      setTimeout(() => setMessage(''), 3000)
+    } catch (err) {
+      setMessage('')
+      alert(err.message)
+    }
   }
 
   const handleCancel = () => {

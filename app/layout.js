@@ -1,5 +1,6 @@
 import Providers from '@/components/Providers'
 import Navbar from '@/components/Navbar'
+import { NotificationProvider } from '../context/NotificationContext'
 import './globals.css'
 
 export const metadata = {
@@ -12,10 +13,12 @@ export default function RootLayout({ children }) {
     <html lang="en">
       <body>
         <Providers>
-          <Navbar />
-          <main className="main-content">
-            {children}
-          </main>
+          <NotificationProvider>
+            <Navbar />
+            <main className="main-content">
+              {children}
+            </main>
+          </NotificationProvider>
         </Providers>
       </body>
     </html>

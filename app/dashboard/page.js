@@ -5,6 +5,8 @@ import Link from 'next/link'
 import { useAuth } from '@/context/AuthContext'
 import DashboardLayout from '@/components/DashboardLayout'
 
+import ImpactStats from '@/components/ImpactStats'
+
 function DashboardContent() {
   const { user } = useAuth()
   const [activeTab, setActiveTab] = useState('overview')
@@ -66,6 +68,8 @@ function DashboardContent() {
           </div>
         ))}
       </div>
+
+      <ImpactStats />
 
       {/* Quick Actions */}
       <div className="quick-actions">

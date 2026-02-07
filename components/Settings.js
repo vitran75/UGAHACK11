@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { useAuth } from '@/context/AuthContext'
+import { supabase } from '@/lib/supabase'
 
 export default function Settings() {
   const { user, updateProfile, logout } = useAuth()
@@ -14,11 +15,11 @@ export default function Settings() {
   const [confirmPassword, setConfirmPassword] = useState('')
   const [passwordError, setPasswordError] = useState('')
 
-  const handlePasswordChange = (e) => {
+  const handlePasswordChange = async (e) => {
     e.preventDefault()
     setPasswordError('')
 
-    if (!currentPassword || !newPassword || !confirmPassword) {
+    if (!newPassword || !confirmPassword) {
       setPasswordError('Please fill in all password fields')
       return
     }
@@ -33,12 +34,17 @@ export default function Settings() {
       return
     }
 
-    // Simulate password change - replace with actual API call
-    setMessage('Password updated successfully!')
-    setCurrentPassword('')
-    setNewPassword('')
-    setConfirmPassword('')
-    setTimeout(() => setMessage(''), 3000)
+    try {
+      const { error } = await supabase.auth.updateUser({ password: newPassword })
+      if (error) throw error
+      setMessage('Password updated successfully!')
+      setCurrentPassword('')
+      setNewPassword('')
+      setConfirmPassword('')
+      setTimeout(() => setMessage(''), 3000)
+    } catch (err) {
+      setPasswordError(err.message)
+    }
   }
 
   const handleDeleteAccount = () => {

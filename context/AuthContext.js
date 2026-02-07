@@ -2,6 +2,7 @@
 
 import { createContext, useContext, useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
+import { supabase } from '@/lib/supabase'
 
 const AuthContext = createContext(null)
 
@@ -10,55 +11,69 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(true)
   const router = useRouter()
 
-  useEffect(() => {
-    // Check for stored user on mount
-    const storedUser = localStorage.getItem('user')
-    if (storedUser) {
-      setUser(JSON.parse(storedUser))
+  const formatUser = (session) => {
+    if (!session?.user) return null
+    const u = session.user
+    return {
+      id: u.id,
+      email: u.email,
+      name: u.user_metadata?.name || u.email.split('@')[0],
+      avatar: u.user_metadata?.avatar || null,
+      createdAt: u.created_at,
     }
-    setLoading(false)
+  }
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setUser(formatUser(session))
+      setLoading(false)
+    })
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (_event, session) => {
+        setUser(formatUser(session))
+      }
+    )
+
+    return () => subscription.unsubscribe()
   }, [])
 
   const login = async (email, password) => {
-    // Simulate API call - replace with your actual auth logic
-    const userData = {
-      id: Date.now(),
-      email,
-      name: email.split('@')[0],
-      avatar: null,
-      createdAt: new Date().toISOString()
-    }
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password })
+    if (error) throw error
+    const userData = formatUser(data.session)
     setUser(userData)
-    localStorage.setItem('user', JSON.stringify(userData))
     router.push('/dashboard')
     return userData
   }
 
   const signup = async (email, password, name) => {
-    // Simulate API call - replace with your actual auth logic
-    const userData = {
-      id: Date.now(),
+    const { data, error } = await supabase.auth.signUp({
       email,
-      name,
-      avatar: null,
-      createdAt: new Date().toISOString()
-    }
+      password,
+      options: { data: { name } },
+    })
+    if (error) throw error
+    const userData = formatUser(data.session)
     setUser(userData)
-    localStorage.setItem('user', JSON.stringify(userData))
     router.push('/dashboard')
     return userData
   }
 
-  const logout = () => {
+  const logout = async () => {
+    await supabase.auth.signOut()
     setUser(null)
-    localStorage.removeItem('user')
     router.push('/login')
   }
 
-  const updateProfile = (updates) => {
-    const updatedUser = { ...user, ...updates }
+  const updateProfile = async (updates) => {
+    const { data, error } = await supabase.auth.updateUser({
+      data: updates,
+    })
+    if (error) throw error
+    const session = await supabase.auth.getSession()
+    const updatedUser = formatUser(session.data.session)
     setUser(updatedUser)
-    localStorage.setItem('user', JSON.stringify(updatedUser))
     return updatedUser
   }
 
@@ -69,7 +84,7 @@ export function AuthProvider({ children }) {
     signup,
     logout,
     updateProfile,
-    isAuthenticated: !!user
+    isAuthenticated: !!user,
   }
 
   return (
