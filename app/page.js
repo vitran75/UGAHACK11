@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
 import { useAuth } from '@/context/AuthContext'
 
@@ -14,6 +14,18 @@ export default function LandingPage() {
   const [isDragOver, setIsDragOver] = useState(false)
   const [error, setError] = useState(null)
   const fileInputRef = useRef(null)
+  
+
+  useEffect(() => {
+    const updatePointer = (event) => {
+      const x = event.clientX / window.innerWidth - 0.5
+      const y = event.clientY / window.innerHeight - 0.5
+      document.documentElement.style.setProperty('--mx', x.toFixed(3))
+      document.documentElement.style.setProperty('--my', y.toFixed(3))
+    }
+    window.addEventListener('mousemove', updatePointer, { passive: true })
+    return () => window.removeEventListener('mousemove', updatePointer)
+  }, [])
 
   function gradeColor(grade) {
     if (!grade) return '#6b7280'
@@ -88,41 +100,72 @@ export default function LandingPage() {
       {/* Hero Section */}
       <section className="hero">
         <div className="hero-content">
+          <div className="hero-eyebrow">Arcane Fleet Command</div>
           <h1 className="hero-title">
-            Build Something
-            <span className="hero-highlight"> Amazing</span>
+            Summon Circular Impact
+            <span className="hero-highlight"> With A Wand</span>
           </h1>
           <p className="hero-subtitle">
-            The all-in-one platform to bring your ideas to life.
-            Start building today with powerful tools and seamless experience.
+            Cast a spell on everyday waste. We reveal the hidden lifecycle of each item
+            and guide you to recycle with precision.
           </p>
           <div className="hero-buttons">
             {isAuthenticated ? (
               <Link href="/dashboard" className="btn btn-primary btn-large">
-                Go to Dashboard
+                Open Command Deck
               </Link>
             ) : (
               <>
                 <Link href="/signup" className="btn btn-primary btn-large">
-                  Get Started
+                  Join The Guild
                 </Link>
                 <Link href="/login" className="btn btn-secondary btn-large">
-                  Sign In
+                  Enter Vault
                 </Link>
               </>
             )}
           </div>
+          <div className="hero-stats">
+            <div className="hero-stat">
+              <span className="hero-stat-value">3.2M+</span>
+              <span className="hero-stat-label">Artifacts Sorted</span>
+            </div>
+            <div className="hero-stat">
+              <span className="hero-stat-value">87%</span>
+              <span className="hero-stat-label">Correct Recovery</span>
+            </div>
+            <div className="hero-stat">
+              <span className="hero-stat-value">24h</span>
+              <span className="hero-stat-label">Guild Response</span>
+            </div>
+          </div>
         </div>
         <div className="hero-visual">
-          <div className="hero-shape"></div>
+          <div className="earth-orbit">
+            <div className="earth-glow" />
+            <div className="earth-core" />
+            <div className="earth-clouds" />
+            <div className="orbit-ring orbit-ring--a" />
+            <div className="orbit-ring orbit-ring--b" />
+            <div className="orbit-ring orbit-ring--c" />
+            <div className="orbit-satellite orbit-satellite--a" />
+            <div className="orbit-satellite orbit-satellite--b" />
+            <div className="orbit-satellite orbit-satellite--c" />
+          </div>
+          <div className="hero-runes">
+            <span className="rune rune-top">ᚨ</span>
+            <span className="rune rune-right">ᚾ</span>
+            <span className="rune rune-bottom">ᛟ</span>
+            <span className="rune rune-left">ᛉ</span>
+          </div>
         </div>
       </section>
 
       {/* Impact Reveal Section */}
       <section className="impact-reveal">
-        <h2 className="impact-reveal-title">What&apos;s Your Impact?</h2>
+        <h2 className="impact-reveal-title">Reveal The Enchantment</h2>
         <p className="impact-reveal-subtitle">
-          Snap a photo of any recyclable item and discover its environmental story.
+          Scan any item and watch its hidden footprint surface in real time.
         </p>
 
         <div className="flip-card">
@@ -253,45 +296,45 @@ export default function LandingPage() {
 
       {/* Features Section */}
       <section className="features">
-        <h2 className="section-title">Why Choose Us</h2>
+        <h2 className="section-title">Rituals Of The Fleet</h2>
         <div className="features-grid">
           <div className="feature-card">
-            <div className="feature-icon">⚡</div>
-            <h3>Lightning Fast</h3>
-            <p>Optimized for speed and performance. Your experience will be seamless.</p>
+            <div className="feature-icon">🜂</div>
+            <h3>Sigil Scan</h3>
+            <p>Point your lens and the artifact whispers its origin story.</p>
           </div>
           <div className="feature-card">
-            <div className="feature-icon">🔒</div>
-            <h3>Secure</h3>
-            <p>Enterprise-grade security to keep your data safe and protected.</p>
+            <div className="feature-icon">🜁</div>
+            <h3>Elemental Score</h3>
+            <p>Instant grades, material lineage, and recycling verdicts.</p>
           </div>
           <div className="feature-card">
-            <div className="feature-icon">🎨</div>
-            <h3>Beautiful Design</h3>
-            <p>Modern and intuitive interface that's a pleasure to use.</p>
+            <div className="feature-icon">🜄</div>
+            <h3>Impact Channel</h3>
+            <p>See CO2, water, and energy saved in luminous bars.</p>
           </div>
           <div className="feature-card">
-            <div className="feature-icon">🚀</div>
-            <h3>Scalable</h3>
-            <p>Grows with your needs. From prototype to production.</p>
+            <div className="feature-icon">🜃</div>
+            <h3>Guild Alerts</h3>
+            <p>Get live dispatches to nearby drop-off portals.</p>
           </div>
         </div>
       </section>
 
       {/* CTA Section */}
       <section className="cta">
-        <h2>Ready to get started?</h2>
-        <p>Join thousands of users who are already building amazing things.</p>
+        <h2>Ready To Cast Your First Spell?</h2>
+        <p>Join the Arcane Fleet and turn every object into a win for the Earth.</p>
         {!isAuthenticated && (
           <Link href="/signup" className="btn btn-primary btn-large">
-            Get Started Free
+            Claim Your Wand
           </Link>
         )}
       </section>
 
       {/* Footer */}
       <footer className="footer">
-        <p>&copy; 2025 MyApp. All rights reserved.</p>
+        <p>&copy; 2026 Arcane Fleet. All rights reserved.</p>
       </footer>
     </div>
   )

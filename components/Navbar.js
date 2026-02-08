@@ -32,7 +32,7 @@ export default function Navbar() {
       <nav className="navbar">
         <div className="navbar-left">
           <div className="navbar-brand">
-            <Link href="/">MyApp</Link>
+            <Link href="/">GreenFleet</Link>
           </div>
         </div>
       </nav>
@@ -54,12 +54,13 @@ export default function Navbar() {
           </button>
         )}
         <div className="navbar-brand">
-          <Link href="/">MyApp</Link>
+          <Link href="/">GreenFleet</Link>
         </div>
       </div>
       <div className="navbar-links">
         {isAuthenticated ? (
           <>
+            <Link href="/about">About</Link>
             <UpdateTimer />
             {/* User Dropdown */}
             <div className="dropdown" ref={dropdownRef}>

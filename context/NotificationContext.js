@@ -9,7 +9,7 @@ export function NotificationProvider({ children }) {
   const [notifications, setNotifications] = useState([]);
 
   const addNotification = useCallback((message, type = 'info', duration = 5000) => {
-    const id = Date.now();
+    const id = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
     setNotifications((prev) => {
       const next = [...prev, { id, message, type }];
       return next.length > 2 ? next.slice(next.length - 2) : next;

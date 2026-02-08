@@ -69,6 +69,7 @@ export default function SustainabilityDashboard() {
     .slice(0, 5)
 
   const [chatMessages, setChatMessages] = useState([])
+  const [isChatOpen, setIsChatOpen] = useState(false)
   const [inputValue, setInputValue] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const chatEndRef = useRef(null)
@@ -217,44 +218,62 @@ export default function SustainabilityDashboard() {
               ))}
             </ul>
           </div>
-
-          <div className="impact-panel impact-assistant">
-            <div className="impact-assistant-header">
-              <h2>GreenFleet AI</h2>
-              <span className="impact-pill">Live</span>
-            </div>
-            <div className="impact-assistant-chat">
-              {chatMessages.length === 0 && (
-                <div className="chat-empty">Ask me anything about your fleet, routes, or sustainability impact.</div>
-              )}
-              {chatMessages.map((msg, i) => (
-                <div key={i} className="chat-message">
-                  <span className={`chat-role ${msg.role === 'user' ? 'chat-role-user' : 'chat-role-assistant'}`}>
-                    {msg.role === 'user' ? 'You' : 'GreenFleet AI'}
-                  </span>
-                  {msg.content}
-                </div>
-              ))}
-              {isLoading && <div className="chat-loading">Thinking...</div>}
-              <div ref={chatEndRef} />
-            </div>
-            <div className="chat-inline-actions">
-              <button disabled={isLoading} onClick={() => sendMessage('Generate a sustainability impact report summarizing recycled batteries, CO₂ avoided, water saved, and material recovered.')}>Generate report</button>
-              <button disabled={isLoading} onClick={() => sendMessage('Tell me a fun and surprising fact about battery recycling or sustainability.')}>Fun fact</button>
-            </div>
-            <div className="chat-inline-input">
-              <input
-                placeholder="Ask something..."
-                value={inputValue}
-                onChange={(e) => setInputValue(e.target.value)}
-                onKeyDown={(e) => { if (e.key === 'Enter') sendMessage() }}
-                disabled={isLoading}
-              />
-              <button onClick={() => sendMessage()} disabled={isLoading}>Send</button>
-            </div>
-          </div>
         </aside>
       </section>
+
+      <button
+        className="chat-fab"
+        onClick={() => setIsChatOpen(true)}
+        aria-label="Open GreenFleet AI chat"
+      >
+        <img src="/ai-chatbot-icon.png" alt="" className="chat-fab-icon" />
+        <span className="chat-fab-dot" />
+      </button>
+
+      <div className={`chat-popup${isChatOpen ? ' open' : ''}`}>
+        <div className="chat-popup-header">
+          <div>
+            <h3>GreenFleet AI</h3>
+            <span className="impact-pill">Live</span>
+          </div>
+          <button
+            className="chat-popup-close"
+            onClick={() => setIsChatOpen(false)}
+            aria-label="Close chat"
+          >
+            ×
+          </button>
+        </div>
+        <div className="impact-assistant-chat">
+          {chatMessages.length === 0 && (
+            <div className="chat-empty">Ask me anything about your fleet, routes, or sustainability impact.</div>
+          )}
+          {chatMessages.map((msg, i) => (
+            <div key={i} className="chat-message">
+              <span className={`chat-role ${msg.role === 'user' ? 'chat-role-user' : 'chat-role-assistant'}`}>
+                {msg.role === 'user' ? 'You' : 'GreenFleet AI'}
+              </span>
+              {msg.content}
+            </div>
+          ))}
+          {isLoading && <div className="chat-loading">Thinking...</div>}
+          <div ref={chatEndRef} />
+        </div>
+        <div className="chat-inline-actions">
+          <button disabled={isLoading} onClick={() => sendMessage('Generate a sustainability impact report summarizing recycled batteries, CO₂ avoided, water saved, and material recovered.')}>Generate report</button>
+          <button disabled={isLoading} onClick={() => sendMessage('Tell me a fun and surprising fact about battery recycling or sustainability.')}>Fun fact</button>
+        </div>
+        <div className="chat-inline-input">
+          <input
+            placeholder="Ask something..."
+            value={inputValue}
+            onChange={(e) => setInputValue(e.target.value)}
+            onKeyDown={(e) => { if (e.key === 'Enter') sendMessage() }}
+            disabled={isLoading}
+          />
+          <button onClick={() => sendMessage()} disabled={isLoading}>Send</button>
+        </div>
+      </div>
     </div>
   )
 }
