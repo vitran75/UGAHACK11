@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { getBatteryHistory, getMockLocations, getTotalBatteriesRecycled, getSimulatedDay, subscribeToMockData } from '@/lib/mock-data'
 import { computeDaysToFull, computeRiskLevel } from '@/lib/fleet-utils'
 import ImpactTrendChart from '@/components/ImpactTrendChart'
@@ -66,6 +66,72 @@ export default function SustainabilityDashboard() {
     .filter((d) => Number.isFinite(d.days))
     .sort((a, b) => a.days - b.days)
     .slice(0, 5)
+
+  const [chatOpen, setChatOpen] = useState(false)
+  const [chatMessages, setChatMessages] = useState([])
+  const [inputValue, setInputValue] = useState('')
+  const [isLoading, setIsLoading] = useState(false)
+  const chatEndRef = useRef(null)
+
+  useEffect(() => {
+    chatEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+  }, [chatMessages])
+
+  function gatherFleetContext() {
+    return {
+      summary: {
+        totalDealerships: dealers.length,
+        totalRecycled,
+        batteriesInField: totalBatteriesInField,
+        co2AvoidedKg: Math.round(co2SavedKg),
+        waterSavedL: Math.round(waterSavedL),
+        materialRecoveredKg: Math.round(materialRecoveredKg),
+      },
+      dealerships: dealers.map((d) => ({
+        name: d.name,
+        city: d.city,
+        state: d.state,
+        currentBatteryCount: d.currentBatteryCount,
+        maxCapacity: d.maxCapacity,
+        fillRate: d.fillRate,
+        daysToFull: parseFloat(computeDaysToFull(d).toFixed(1)),
+        riskLevel: computeRiskLevel(d),
+        utilizationPct: parseFloat(((d.currentBatteryCount / d.maxCapacity) * 100).toFixed(1)),
+      })),
+      recyclingCenters: centers.map((c) => ({
+        name: c.name,
+        city: c.city,
+        state: c.state,
+      })),
+    }
+  }
+
+  async function sendMessage(messageText) {
+    const text = messageText || inputValue.trim()
+    if (!text || isLoading) return
+
+    setChatMessages((prev) => [...prev, { role: 'user', content: text }])
+    setInputValue('')
+    setIsLoading(true)
+
+    try {
+      const res = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: text, fleetContext: gatherFleetContext() }),
+      })
+      const data = await res.json()
+      if (res.ok) {
+        setChatMessages((prev) => [...prev, { role: 'assistant', content: data.reply }])
+      } else {
+        setChatMessages((prev) => [...prev, { role: 'assistant', content: data.error || 'Something went wrong.' }])
+      }
+    } catch {
+      setChatMessages((prev) => [...prev, { role: 'assistant', content: 'Network error. Please try again.' }])
+    } finally {
+      setIsLoading(false)
+    }
+  }
 
   return (
     <div className="impact-dashboard-v2">
@@ -161,19 +227,53 @@ export default function SustainabilityDashboard() {
           <div className="impact-panel impact-assistant">
             <h2>How can I help?</h2>
             <p>Ask for optimizations, pickup balancing, or center-level insights.</p>
-            <div className="impact-assistant-actions">
-              <button>Optimize routes</button>
-              <button>Forecast overflow</button>
-              <button>Generate report</button>
-              <button>Notify partners</button>
-            </div>
-            <div className="impact-assistant-input">
-              <input placeholder="Ask something..." />
-              <button>Send</button>
-            </div>
+            <button className="chat-open-btn" onClick={() => setChatOpen(true)}>Talk to GreenFleet AI</button>
           </div>
         </aside>
       </section>
+
+      {chatOpen && (
+        <div className="chat-popup-overlay" onClick={() => setChatOpen(false)}>
+          <div className="chat-popup" onClick={(e) => e.stopPropagation()}>
+            <div className="chat-popup-header">
+              <h2>GreenFleet AI</h2>
+              <button className="chat-popup-close" onClick={() => setChatOpen(false)}>&times;</button>
+            </div>
+            <div className="chat-popup-body">
+              <div className="impact-assistant-chat">
+                {chatMessages.length === 0 && (
+                  <div className="chat-empty">Ask me anything about your fleet, routes, or sustainability impact.</div>
+                )}
+                {chatMessages.map((msg, i) => (
+                  <div key={i} className="chat-message">
+                    <span className={`chat-role ${msg.role === 'user' ? 'chat-role-user' : 'chat-role-assistant'}`}>
+                      {msg.role === 'user' ? 'You' : 'GreenFleet AI'}
+                    </span>
+                    {msg.content}
+                  </div>
+                ))}
+                {isLoading && <div className="chat-loading">Thinking...</div>}
+                <div ref={chatEndRef} />
+              </div>
+            </div>
+            <div className="chat-popup-actions">
+              <button disabled={isLoading} onClick={() => sendMessage('Generate a sustainability impact report summarizing recycled batteries, CO₂ avoided, water saved, and material recovered.')}>Generate report</button>
+              <button disabled={isLoading} onClick={() => sendMessage('Tell me a fun and surprising fact about battery recycling or sustainability.')}>Fun fact</button>
+            </div>
+            <div className="chat-popup-input">
+              <input
+                placeholder="Ask something..."
+                value={inputValue}
+                onChange={(e) => setInputValue(e.target.value)}
+                onKeyDown={(e) => { if (e.key === 'Enter') sendMessage() }}
+                disabled={isLoading}
+                autoFocus
+              />
+              <button onClick={() => sendMessage()} disabled={isLoading}>Send</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
