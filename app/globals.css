@@ -660,7 +660,7 @@ body {
 }
 
 .chat-empty {
-  color: #94a3b8;
+  color: #cbd5e1;
   font-size: 0.875rem;
   text-align: center;
   padding: 2rem 0;
@@ -670,7 +670,7 @@ body {
   white-space: pre-wrap;
   font-size: 0.8125rem;
   line-height: 1.5;
-  color: #334155;
+  color: #e2e8f0;
 }
 
 .chat-role {
@@ -683,16 +683,16 @@ body {
 }
 
 .chat-role-user {
-  color: #6366f1;
+  color: #818cf8;
 }
 
 .chat-role-assistant {
-  color: #10b981;
+  color: #34d399;
 }
 
 .chat-loading {
   font-style: italic;
-  color: #94a3b8;
+  color: #cbd5e1;
   font-size: 0.8125rem;
 }
 
